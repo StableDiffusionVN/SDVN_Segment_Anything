@@ -427,3 +427,21 @@ class IsMaskEmptyNode:
 
     def main(self, mask):
         return (torch.all(mask == 0).int().item(), )
+
+NODE_CLASS_MAPPINGS = {
+    'SDVN SAMModelLoader': SAMModelLoader,
+    'SDVN DinoModelLoader': GroundingDinoModelLoader,
+    'SDVN DinoSAMSegment': GroundingDinoSAMSegment,
+    'SDVN InvertMask': InvertMask,
+    "SDVN IsMaskEmpty": IsMaskEmptyNode,
+    "SDVN SegmentAnything": SegmentAnything,
+}
+
+NODE_DISPLAY_NAME_MAPPINGS = {
+    'SDVN SAMModelLoader': '🧩 SAMModel Loader',
+    'SDVN DinoModelLoader': '🧩 DinoModel Loader',
+    'SDVN DinoSAMSegment': '🧩 Dino SAMSegment',
+    'SDVN InvertMask': '🧩 Invert Mask',
+    "SDVN IsMaskEmpty": '🧩 Is Mask Empty',
+    "SDVN SegmentAnything": '🧩 Segment Anything',
+}
