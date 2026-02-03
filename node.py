@@ -3,7 +3,7 @@ import sys
 sys.path.append(
     os.path.dirname(os.path.abspath(__file__))
 )
-
+from nodes import NODE_CLASS_MAPPINGS as ALL_NODE
 import copy
 import torch
 import numpy as np
@@ -383,7 +383,11 @@ class SegmentAnything:
         sam_load_model = SAMModelLoader().main(sam_model)[0]
         dino_load_model = GroundingDinoModelLoader().main(dino_model)[0]
         output = GroundingDinoSAMSegment().main(dino_load_model, sam_load_model, image, prompt, threshold, threshold)
-        return (output)
+        mask = output[1]
+        invert_mask = (1.0 - mask).to(image.device)
+        alpha_image = ALL_NODE["JoinImageWithAlpha"]().execute(image, invert_mask)[0]
+        ui = ALL_NODE["PreviewImage"]().save_images(alpha_image)["ui"]
+        return {"ui":ui, "result": output}
     
 class InvertMask:
     @classmethod
