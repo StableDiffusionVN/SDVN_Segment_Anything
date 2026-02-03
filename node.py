@@ -372,17 +372,23 @@ class SegmentAnything:
                     "min": 0,
                     "max": 1.0,
                     "step": 0.01
-                })
+                }),
+                "text_threshold": ("FLOAT", {
+                    "default": 0.25,
+                    "min": 0,
+                    "max": 1.0,
+                    "step": 0.01
+                }),
             }
         }
     CATEGORY = "📂 SDVN/🎭 Mask"
     FUNCTION = "main"
     RETURN_TYPES = ("IMAGE", "MASK")
 
-    def main(self, sam_model, dino_model,image, prompt, threshold):
+    def main(self, sam_model, dino_model,image, prompt, threshold, text_threshold):
         sam_load_model = SAMModelLoader().main(sam_model)[0]
         dino_load_model = GroundingDinoModelLoader().main(dino_model)[0]
-        output = GroundingDinoSAMSegment().main(dino_load_model, sam_load_model, image, prompt, threshold, threshold)
+        output = GroundingDinoSAMSegment().main(dino_load_model, sam_load_model, image, prompt, threshold, text_threshold)
         mask = output[1]
         invert_mask = (1.0 - mask).to(image.device)
         alpha_image = ALL_NODE["JoinImageWithAlpha"]().execute(image, invert_mask)[0]
