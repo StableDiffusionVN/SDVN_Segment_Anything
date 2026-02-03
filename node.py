@@ -277,7 +277,7 @@ class SAMModelLoader:
                 "model_name": (list_sam_model(), ),
             }
         }
-    CATEGORY = "segment_anything"
+    CATEGORY = "📂 SDVN/🎭 Mask"
     FUNCTION = "main"
     RETURN_TYPES = ("SAM_MODEL", )
 
@@ -294,7 +294,7 @@ class GroundingDinoModelLoader:
                 "model_name": (list_groundingdino_model(), ),
             }
         }
-    CATEGORY = "segment_anything"
+    CATEGORY = "📂 SDVN/🎭 Mask"
     FUNCTION = "main"
     RETURN_TYPES = ("GROUNDING_DINO_MODEL", )
 
@@ -326,7 +326,7 @@ class GroundingDinoSAMSegment:
                 }),
             }
         }
-    CATEGORY = "segment_anything"
+    CATEGORY = "📂 SDVN/🎭 Mask"
     FUNCTION = "main"
     RETURN_TYPES = ("IMAGE", "MASK")
 
@@ -358,7 +358,33 @@ class GroundingDinoSAMSegment:
             return (empty_mask, empty_mask)
         return (torch.cat(res_images, dim=0), torch.cat(res_masks, dim=0))
 
+class SegmentAnything:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "sam_model": (list_sam_model(), ),
+                "dino_model": (list_groundingdino_model(), ),
+                "image": ('IMAGE', {}),
+                "prompt": ("STRING", {}),
+                "threshold": ("FLOAT", {
+                    "default": 0.3,
+                    "min": 0,
+                    "max": 1.0,
+                    "step": 0.01
+                })
+            }
+        }
+    CATEGORY = "📂 SDVN/🎭 Mask"
+    FUNCTION = "main"
+    RETURN_TYPES = ("IMAGE", "MASK")
 
+    def main(self, sam_model, dino_model,image, prompt, threshold):
+        sam_load_model = SAMModelLoader().main(sam_model)[0]
+        dino_load_model = GroundingDinoModelLoader().main(dino_model)[0]
+        output = GroundingDinoSAMSegment().main(dino_load_model, sam_load_model, image, prompt, threshold, threshold)
+        return (output)
+    
 class InvertMask:
     @classmethod
     def INPUT_TYPES(cls):
@@ -367,7 +393,7 @@ class InvertMask:
                 "mask": ("MASK",),
             }
         }
-    CATEGORY = "segment_anything"
+    CATEGORY = "📂 SDVN/🎭 Mask"
     FUNCTION = "main"
     RETURN_TYPES = ("MASK",)
 
@@ -387,7 +413,7 @@ class IsMaskEmptyNode:
     RETURN_NAMES = ["boolean_number"]
 
     FUNCTION = "main"
-    CATEGORY = "segment_anything"
+    CATEGORY = "📂 SDVN/🎭 Mask"
 
     def main(self, mask):
         return (torch.all(mask == 0).int().item(), )
